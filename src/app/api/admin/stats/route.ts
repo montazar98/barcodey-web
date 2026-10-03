@@ -24,12 +24,21 @@ export async function POST(req: NextRequest) {
 
 // GET = full admin stats
 export async function GET(req: NextRequest) {
+  try {
+    return await getStats(req);
+  } catch (e: any) {
+    console.error("admin stats error:", e);
+    return NextResponse.json({ error: `خطأ في قاعدة البيانات: ${e?.message?.slice(0, 300) || "unknown"}` }, { status: 500 });
+  }
+}
+
+async function getStats(req: NextRequest) {
   const payload = adminPayload(req);
   if (!payload || payload.role !== "admin")
     return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
 
-  await seedFeatureFlags();
-  await seedSiteConfig();
+  await seedFeatureFlags().catch((e) => console.error("seedFeatureFlags:", e));
+  await seedSiteConfig().catch((e) => console.error("seedSiteConfig:", e));
 
   const now = new Date();
   const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -90,13 +99,14 @@ export async function GET(req: NextRequest) {
   ]);
 
   // Daily sessions for chart (last 30 days)
+  // PostgreSQL syntax (quoted camelCase identifiers)
   const dailySessions = await db.$queryRaw<{ day: string; count: number }[]>`
-    SELECT date(startTime) as day, count(*) as count
-    FROM VisitorSession
-    WHERE startTime >= ${monthAgo.toISOString()}
-    GROUP BY date(startTime)
-    ORDER BY day ASC
-  `;
+    SELECT to_char(date("startTime"), 'YYYY-MM-DD') AS day, count(*)::int AS count
+    FROM "VisitorSession"
+    WHERE "startTime" >= ${monthAgo}
+    GROUP BY 1
+    ORDER BY 1 ASC
+  `.catch(() => [] as { day: string; count: number }[]);
 
   const bounceRate = totalSessions > 0 ? Math.round((bouncedSessions / totalSessions) * 100) : 0;
   const avgDuration = Math.round(avgDurationRaw._avg.duration || 0);

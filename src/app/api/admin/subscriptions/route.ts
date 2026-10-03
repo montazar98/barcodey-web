@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifyTokenEdge } from "@/lib/edge-auth";
+import { verifyTokenEdge, ADMIN_COOKIE } from "@/lib/edge-auth";
 import db from "@/lib/db";
 
 async function requireAdmin() {
-  const token = cookies().get("token")?.value;
+  const token = cookies().get(ADMIN_COOKIE)?.value;
   if (!token) return null;
   const payload = await verifyTokenEdge(token);
-  if (!payload || payload.role !== "ADMIN") return null;
+  if (!payload || String(payload.role).toLowerCase() !== "admin") return null;
   return payload;
 }
 

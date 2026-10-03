@@ -116,20 +116,23 @@ export default function AdminDashboard() {
 
       if (statsRes.status === 401) { router.push("/admin-bkd9x"); return; }
 
+      const safeJson = async (r: Response) => { try { return await r.json(); } catch { return {}; } };
       const [statsData, usersData, qrsData, subsData] = await Promise.all([
-        statsRes.json(),
-        usersRes.json(),
-        qrsRes.json(),
-        subsRes.json(),
+        safeJson(statsRes),
+        safeJson(usersRes),
+        safeJson(qrsRes),
+        safeJson(subsRes),
       ]);
+
+      if (!statsRes.ok) throw new Error(statsData.error || `فشل تحميل الإحصائيات (${statsRes.status})`);
 
       setData(statsData);
       setUsers(usersData.users || []);
       setQrs(qrsData.qrs || []);
       setSubscriptions(subsData.subscriptions || []);
       setEditConfig(statsData.siteConfig || {});
-    } catch {
-      toast.error("فشل تحميل البيانات");
+    } catch (e: any) {
+      toast.error(e?.message || "فشل تحميل البيانات", { duration: 10000 });
     } finally {
       setLoading(false);
     }

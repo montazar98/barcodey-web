@@ -45,13 +45,19 @@ export async function POST(req: NextRequest) {
         if (!channel.startsWith("@")) channel = "@" + channel;
         const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channel}&user_id=${userId}`);
         const data = await res.json();
-        if (data.ok && ["member", "administrator", "creator"].includes(data.result.status)) {
-          return true;
+        
+        if (data.ok) {
+          if (["member", "administrator", "creator"].includes(data.result.status)) {
+            return { isMember: true };
+          }
+          return { isMember: false };
+        } else {
+          // Return the actual Telegram error to help debug
+          return { isMember: false, error: data.description };
         }
-      } catch (e) {
-        console.error("Error checking channel membership:", e);
+      } catch (e: any) {
+        return { isMember: false, error: e.message };
       }
-      return false;
     };
 
     const getBasePrice = () => {
@@ -67,8 +73,8 @@ export async function POST(req: NextRequest) {
       const channelDiscount = Number(config.telegram_channel_discount || 0);
 
       if (channel && channelDiscount > 0) {
-        const isMember = await checkChannelMembership(userId, channel);
-        if (isMember) {
+        const result = await checkChannelMembership(userId, channel);
+        if (result.isMember) {
           const discountedPrice = Math.max(1, Math.round(baseFinal - channelDiscount));
           await sendMessage(chatId, "🎉 تم تطبيق خصم اشتراك القناة بنجاح!");
           await sendInvoice(chatId, discountedPrice);
@@ -127,8 +133,8 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ ok: true });
         }
         
-        const isMember = await checkChannelMembership(userId, channel);
-        if (isMember) {
+        const result = await checkChannelMembership(userId, channel);
+        if (result.isMember) {
           await answerCb("تم التحقق بنجاح! جاري إرسال الفاتورة...", false);
           const baseFinal = getBasePrice();
           const channelDiscount = Number(config.telegram_channel_discount || 0);
@@ -136,7 +142,11 @@ export async function POST(req: NextRequest) {
           await sendMessage(chatId, "🎉 تم التحقق من اشتراكك في القناة وتم تطبيق الخصم!");
           await sendInvoice(chatId, discountedPrice);
         } else {
-          await answerCb("❌ لم نجدك في القناة! يرجى الاشتراك أولاً ثم المحاولة.", true);
+          if (result.error) {
+            await answerCb(`حدث خطأ من تليغرام: ${result.error}`, true);
+          } else {
+            await answerCb("❌ لم نجدك في القناة! يرجى الاشتراك أولاً ثم المحاولة.", true);
+          }
         }
       } else if (data === "buy_no_discount") {
         await answerCb("جاري إرسال الفاتورة بدون خصم...", false);

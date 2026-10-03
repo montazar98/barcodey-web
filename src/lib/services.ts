@@ -140,10 +140,10 @@ export const DEFAULT_CONFIG = [
   { key: "paypal_secret",     value: "",                                 type: "string",  group: "payments", label: "PayPal Secret" },
   
   { key: "free_plan_name",    value: "مجاني", type: "string", group: "pricing", label: "اسم الخطة المجانية" },
-  { key: "free_plan_price",   value: "0", type: "number", group: "pricing", label: "سعر المجانية ($)" },
+  { key: "free_plan_price",   value: "0", type: "number", group: "pricing", label: "سعر المجانية (نجوم أو $)" },
   
   { key: "pro_plan_name",     value: "احترافي", type: "string", group: "pricing", label: "اسم الاشتراك المدفوع" },
-  { key: "pro_plan_price",    value: "29", type: "number", group: "pricing", label: "سعر الاشتراك المدفوع ($)" },
+  { key: "pro_plan_price",    value: "2500", type: "number", group: "pricing", label: "سعر الاشتراك المدفوع (نجوم أو $)" },
 
   { key: "discount_active",   value: "false", type: "boolean", group: "pricing", label: "تفعيل الخصم العالمي للمستخدمين" },
   { key: "discount_percent",  value: "20", type: "number", group: "pricing", label: "نسبة الخصم (%)" },

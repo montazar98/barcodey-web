@@ -133,10 +133,12 @@ export default async function PricingPage() {
                 <div className="mb-4 flex items-baseline justify-center gap-2">
                   {plan.originalPrice && (
                     <span className="text-xl font-bold text-gray-500 line-through">
-                      ${plan.originalPrice}
+                      {config.payment_gateway === "telegram" ? `${plan.originalPrice} ⭐` : `$${plan.originalPrice}`}
                     </span>
                   )}
-                  <span className="text-4xl font-black text-white">${plan.price}</span>
+                  <span className="text-4xl font-black text-white">
+                    {config.payment_gateway === "telegram" ? `${plan.price} ⭐` : `$${plan.price}`}
+                  </span>
                   <span className="text-gray-400 text-sm mr-1"> {plan.period}</span>
                 </div>
                 <p className="text-gray-400 text-sm mb-6">{plan.description}</p>

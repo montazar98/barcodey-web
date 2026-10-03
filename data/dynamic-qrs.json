@@ -1,0 +1,18 @@
+[
+  {
+    "id": "qr_1790946442709_v6suqjnz5wd",
+    "code": "wocm6h",
+    "title": "اختبار رمز QR ديناميكي",
+    "destinationUrl": "https://barcodey.online",
+    "isActive": true,
+    "fgColor": "#00d9a3",
+    "bgColor": "#0a0f0d",
+    "scans": [],
+    "totalScans": 0,
+    "createdAt": "2026-10-02T13:07:22.708Z",
+    "updatedAt": "2026-10-02T13:07:22.708Z",
+    "utmSource": "qr",
+    "utmMedium": "test",
+    "utmCampaign": "demo"
+  }
+]

@@ -1,0 +1,235 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Barcodey Database Schema — Prisma
+// Switch to PostgreSQL for production: change provider to "postgresql"
+//   and set DATABASE_URL in .env
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+// SQLite doesn't support native enums — we use String with validation in app
+// But we document the expected values here as comments
+
+// Role: "USER" | "ADMIN"
+// Plan: "FREE" | "PRO" | "BUSINESS"
+// Device: "MOBILE" | "TABLET" | "DESKTOP" | "UNKNOWN"
+// SubStatus: "ACTIVE" | "CANCELLED" | "EXPIRED"
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+model User {
+  id               String   @id @default(cuid())
+  name             String
+  email            String   @unique
+  passwordHash     String
+  role             String   @default("USER")      // USER | ADMIN
+  plan             String   @default("FREE")      // FREE | PRO | BUSINESS
+  isActive         Boolean  @default(true)
+  isEmailVerified  Boolean  @default(false)
+  avatar           String?
+  bio              String?
+  company          String?
+  website          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  lastLoginAt      DateTime?
+  lastLoginIp      String?
+  loginCount       Int      @default(0)
+  notes            String?  // admin notes
+
+  qrCodes          QRCode[]
+  subscriptions    Subscription[]
+  pageViews        PageView[]
+
+  @@index([email])
+  @@index([plan])
+  @@index([role])
+  @@index([createdAt])
+}
+
+// ─── QR Codes ─────────────────────────────────────────────────────────────────
+
+model QRCode {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  title          String
+  destinationUrl String
+  isDynamic      Boolean   @default(true)
+  isActive       Boolean   @default(true)
+  password       String?
+  expiresAt      DateTime?
+  maxScans       Int?
+  fgColor        String    @default("#00d9a3")
+  bgColor        String    @default("#0a0f0d")
+  mobileUrl      String?
+  tabletUrl      String?
+  desktopUrl     String?
+  iosUrl         String?
+  androidUrl     String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  tags           String?   // JSON: ["tag1","tag2"]
+  totalScans     Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  scans          QRScan[]
+
+  @@index([code])
+  @@index([userId])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model QRScan {
+  id        String   @id @default(cuid())
+  qrCodeId  String
+  timestamp DateTime @default(now())
+  device    String   @default("UNKNOWN")  // MOBILE|TABLET|DESKTOP|UNKNOWN
+  browser   String?
+  os        String?
+  country   String?
+  city      String?
+  ip        String?
+  referer   String?
+  userAgent String?
+
+  qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@index([qrCodeId])
+  @@index([timestamp])
+  @@index([country])
+}
+
+// ─── Visitor Analytics ────────────────────────────────────────────────────────
+
+model VisitorSession {
+  id              String    @id @default(cuid())
+  sessionKey      String    @unique  // UUID from browser
+  ip              String?
+  country         String?
+  countryCode     String?
+  city            String?
+  region          String?
+  timezone        String?
+  browser         String?
+  browserVersion  String?
+  os              String?
+  osVersion       String?
+  device          String    @default("UNKNOWN")
+  screenRes       String?
+  language        String?
+  referer         String?
+  refererDomain   String?
+  landingPage     String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  userAgent       String?
+  isBot           Boolean   @default(false)
+  startTime       DateTime  @default(now())
+  endTime         DateTime?
+  duration        Int?      // seconds
+  pageViewCount   Int       @default(1)
+  bounced         Boolean   @default(true)  // single page visit
+  userId          String?   // if logged in
+
+  pageViews       PageView[]
+
+  @@index([sessionKey])
+  @@index([startTime])
+  @@index([country])
+  @@index([device])
+  @@index([userId])
+}
+
+model PageView {
+  id          String   @id @default(cuid())
+  sessionId   String
+  path        String
+  title       String?
+  timestamp   DateTime @default(now())
+  timeOnPage  Int?     // seconds
+  exitPage    Boolean  @default(false)
+  userId      String?
+
+  session     VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user        User?          @relation(fields: [userId], references: [id])
+
+  @@index([sessionId])
+  @@index([path])
+  @@index([timestamp])
+}
+
+// ─── Feature Flags ────────────────────────────────────────────────────────────
+
+model FeatureFlag {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  name         String
+  description  String?
+  isEnabled    Boolean  @default(true)
+  minPlan      String?  // null=all | "FREE" | "PRO" | "BUSINESS"
+  requiresAuth Boolean  @default(false)
+  updatedAt    DateTime @updatedAt
+  updatedBy    String?
+
+  @@index([key])
+}
+
+// ─── Subscriptions ────────────────────────────────────────────────────────────
+
+model Subscription {
+  id         String    @id @default(cuid())
+  userId     String
+  plan       String    // FREE | PRO | BUSINESS
+  status     String    @default("ACTIVE")  // ACTIVE | CANCELLED | EXPIRED
+  startDate  DateTime  @default(now())
+  endDate    DateTime?
+  amount     Float     @default(0)
+  currency   String    @default("SAR")
+  paymentRef String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  createdBy  String?   // admin id who added it
+
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── Site Config / Settings ───────────────────────────────────────────────────
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string | boolean | number | json
+  group     String   @default("general")
+  label     String?
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([group])
+}
+
+// ─── Coupons ────────────────────────────────────────────────────────────────
+model Coupon {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  discount  Int      // percentage, e.g. 50 for 50%
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

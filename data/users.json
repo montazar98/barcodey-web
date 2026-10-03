@@ -1,0 +1,16 @@
+[
+  {
+    "id": "usr_1790947177899_xtscn",
+    "name": "محمد أحمد",
+    "email": "test@barcodey.online",
+    "passwordHash": "59c1123cd0f519fe44640c8265f24507b1a3465c048f5333331ebc6b5b40a348",
+    "role": "user",
+    "plan": "pro",
+    "isActive": true,
+    "isEmailVerified": false,
+    "qrCount": 0,
+    "totalScans": 0,
+    "createdAt": "2026-10-02T13:19:37.899Z",
+    "lastLoginAt": null
+  }
+]

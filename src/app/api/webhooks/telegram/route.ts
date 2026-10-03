@@ -30,12 +30,10 @@ export async function POST(req: NextRequest) {
         const basePrice = Number(config.pro_plan_price || 2500);
         const discountActive = config.discount_active === "true";
         const discountPercent = Number(config.discount_percent || 0);
-        const finalPrice = discountActive ? (basePrice - (basePrice * discountPercent) / 100) : basePrice;
         
-        // If the admin entered a small number (e.g., 29), treat it as USD and multiply by rate.
-        // If they entered a large number (e.g., 2500), treat it directly as Stars.
-        const rate = Number(config.telegram_stars_usd || 50);
-        const starsAmount = finalPrice < 1000 ? Math.round(finalPrice * rate) : Math.round(finalPrice);
+        // Calculate exact final stars (no conversion, just what's written in settings)
+        const finalPrice = discountActive ? (basePrice - (basePrice * discountPercent) / 100) : basePrice;
+        const starsAmount = Math.max(1, Math.round(finalPrice)); // Telegram requires at least 1 star
 
         // Send Invoice directly in chat
         await fetch(`https://api.telegram.org/bot${botToken}/sendInvoice`, {

@@ -88,6 +88,7 @@ export async function seedFeatureFlags() {
 }
 
 export async function getFeatureFlags() {
+  noStore();
   const flags = await db.featureFlag.findMany({ orderBy: { key: "asc" } });
   if (flags.length === 0) {
     await seedFeatureFlags();
@@ -97,6 +98,7 @@ export async function getFeatureFlags() {
 }
 
 export async function getFlag(key: string) {
+  noStore();
   return db.featureFlag.findUnique({ where: { key } });
 }
 
@@ -175,7 +177,10 @@ export async function seedSiteConfig() {
   }
 }
 
+import { unstable_noStore as noStore } from "next/cache";
+
 export async function getSiteConfig(): Promise<Record<string, string>> {
+  noStore();
   let configs = await db.siteConfig.findMany();
   
   // If there are fewer configs than DEFAULT_CONFIG, we are missing some

@@ -40,9 +40,17 @@ export async function POST(req: NextRequest) {
       });
     };
 
-    const checkChannelMembership = async (userId: number, channel: string) => {
+    const checkChannelMembership = async (userId: number, channelRaw: string) => {
       try {
-        if (!channel.startsWith("@")) channel = "@" + channel;
+        let channel = channelRaw.trim();
+        // Extract username if they pasted a link
+        if (channel.includes("t.me/")) {
+          channel = channel.split("t.me/")[1].split("/")[0].split("?")[0];
+        }
+        if (!channel.startsWith("-") && !channel.startsWith("@")) {
+          channel = "@" + channel;
+        }
+        
         const res = await fetch(`https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${channel}&user_id=${userId}`);
         const data = await res.json();
         
@@ -143,7 +151,8 @@ export async function POST(req: NextRequest) {
           await sendInvoice(chatId, discountedPrice);
         } else {
           if (result.error) {
-            await answerCb(`حدث خطأ من تليغرام: ${result.error}`, true);
+            await answerCb("حدث خطأ، انظر الرسالة أدناه", false);
+            await sendMessage(chatId, `🛠 **رسالة نظام (للمدير فقط):**\nفشل التحقق بسبب الخطأ التالي من تليغرام:\n\`${result.error}\`\n\nتأكد أنك وضعت يوزر القناة بشكل صحيح في لوحة التحكم وأن البوت مشرف فيها.`);
           } else {
             await answerCb("❌ لم نجدك في القناة! يرجى الاشتراك أولاً ثم المحاولة.", true);
           }

@@ -176,11 +176,14 @@ export async function seedSiteConfig() {
 }
 
 export async function getSiteConfig(): Promise<Record<string, string>> {
-  const configs = await db.siteConfig.findMany();
-  if (configs.length === 0) {
+  let configs = await db.siteConfig.findMany();
+  
+  // If there are fewer configs than DEFAULT_CONFIG, we are missing some
+  if (configs.length < DEFAULT_CONFIG.length) {
     await seedSiteConfig();
-    return getSiteConfig();
+    configs = await db.siteConfig.findMany();
   }
+  
   return Object.fromEntries(configs.map((c) => [c.key, c.value]));
 }
 

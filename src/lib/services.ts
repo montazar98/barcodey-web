@@ -135,6 +135,8 @@ export const DEFAULT_CONFIG = [
   { key: "payment_gateway",   value: "telegram",                         type: "string",  group: "payments", label: "بوابة الدفع (stripe/paypal/telegram)" },
   { key: "telegram_bot_username", value: "",                             type: "string",  group: "payments", label: "يوزر البوت (بدون @)" },
   { key: "telegram_bot_token",value: "",                                 type: "string",  group: "payments", label: "توكن بوت تليغرام (Bot Token)" },
+  { key: "telegram_channel_username", value: "",                         type: "string",  group: "payments", label: "يوزر القناة للخصم (مع @)" },
+  { key: "telegram_channel_discount", value: "0",                        type: "number",  group: "payments", label: "خصم نجوم عند الاشتراك بالقناة" },
   { key: "stripe_public_key", value: "",                                 type: "string",  group: "payments", label: "Stripe Public Key" },
   { key: "stripe_secret_key", value: "",                                 type: "string",  group: "payments", label: "Stripe Secret Key" },
   { key: "paypal_client_id",  value: "",                                 type: "string",  group: "payments", label: "PayPal Client ID" },

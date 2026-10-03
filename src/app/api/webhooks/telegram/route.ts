@@ -27,12 +27,15 @@ export async function POST(req: NextRequest) {
       if (text.startsWith("/start")) {
         const chatId = body.message.chat.id;
 
-        const basePrice = Number(config.pro_plan_price || 29);
+        const basePrice = Number(config.pro_plan_price || 2500);
         const discountActive = config.discount_active === "true";
         const discountPercent = Number(config.discount_percent || 0);
-        const usdPrice = discountActive ? (basePrice - (basePrice * discountPercent) / 100) : basePrice;
+        const finalPrice = discountActive ? (basePrice - (basePrice * discountPercent) / 100) : basePrice;
+        
+        // If the admin entered a small number (e.g., 29), treat it as USD and multiply by rate.
+        // If they entered a large number (e.g., 2500), treat it directly as Stars.
         const rate = Number(config.telegram_stars_usd || 50);
-        const starsAmount = Math.round(usdPrice * rate);
+        const starsAmount = finalPrice < 1000 ? Math.round(finalPrice * rate) : Math.round(finalPrice);
 
         // Send Invoice directly in chat
         await fetch(`https://api.telegram.org/bot${botToken}/sendInvoice`, {

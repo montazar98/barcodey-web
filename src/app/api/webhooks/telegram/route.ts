@@ -21,16 +21,13 @@ export async function POST(req: NextRequest) {
       });
     };
 
-    // 1. Handle incoming text commands (like /start)
     if (body.message && body.message.text) {
       const text = body.message.text.trim();
       if (text.startsWith("/start")) {
         const chatId = body.message.chat.id;
-
         const basePrice = Number(config.pro_plan_price || 2500);
         const discountActive = config.discount_active === "true";
         const discountPercent = Number(config.discount_percent || 0);
-        
         // Calculate exact final stars (no conversion, just what's written in settings)
         const finalPrice = discountActive ? (basePrice - (basePrice * discountPercent) / 100) : basePrice;
         const starsAmount = Math.max(1, Math.round(finalPrice)); // Telegram requires at least 1 star

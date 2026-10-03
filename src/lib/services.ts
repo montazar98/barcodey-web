@@ -135,7 +135,6 @@ export const DEFAULT_CONFIG = [
   { key: "payment_gateway",   value: "telegram",                         type: "string",  group: "payments", label: "بوابة الدفع (stripe/paypal/telegram)" },
   { key: "telegram_bot_username", value: "",                             type: "string",  group: "payments", label: "يوزر البوت (بدون @)" },
   { key: "telegram_bot_token",value: "",                                 type: "string",  group: "payments", label: "توكن بوت تليغرام (Bot Token)" },
-  { key: "telegram_stars_usd",value: "50",                               type: "number",  group: "payments", label: "سعر الدولار مقابل النجوم (مثال: 50)" },
   { key: "stripe_public_key", value: "",                                 type: "string",  group: "payments", label: "Stripe Public Key" },
   { key: "stripe_secret_key", value: "",                                 type: "string",  group: "payments", label: "Stripe Secret Key" },
   { key: "paypal_client_id",  value: "",                                 type: "string",  group: "payments", label: "PayPal Client ID" },
@@ -181,6 +180,10 @@ import { unstable_noStore as noStore } from "next/cache";
 
 export async function getSiteConfig(): Promise<Record<string, string>> {
   noStore();
+  
+  // Cleanup old unneeded keys
+  await db.siteConfig.deleteMany({ where: { key: "telegram_stars_usd" } }).catch(() => {});
+
   let configs = await db.siteConfig.findMany();
   
   // If there are fewer configs than DEFAULT_CONFIG, we are missing some

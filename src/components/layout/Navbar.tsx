@@ -4,16 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { QrCode, Barcode, ScanLine, Layers, DollarSign, Menu, X, Zap, LogIn, LogOut, User, ChevronDown, Smartphone } from "lucide-react";
 import { clsx } from "clsx";
-
-const navLinks = [
-  { href: "/dynamic-qr", label: "QR ديناميكي", icon: Zap },
-  { href: "/app-links", label: "روابط التطبيقات", icon: Smartphone },
-  { href: "/qr", label: "مولد QR", icon: QrCode },
-  { href: "/barcode", label: "مولد الباركود", icon: Barcode },
-  { href: "/scanner", label: "القارئ", icon: ScanLine },
-  { href: "/bulk", label: "بالجملة", icon: Layers },
-  { href: "/pricing", label: "الأسعار", icon: DollarSign },
-];
+import { useI18n } from "@/i18n/client";
 
 interface AuthUser {
   id: string;
@@ -23,12 +14,23 @@ interface AuthUser {
 }
 
 export function Navbar() {
+  const dict = useI18n();
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+
+  const navLinks = [
+    { href: "/dynamic-qr", label: dict.nav?.dynamic_qr || dict.nav?.dynamic_qr || "QR ديناميكي", icon: Zap },
+    { href: "/app-links", label: dict.nav?.app_links || dict.nav?.app_links || "روابط التطبيقات", icon: Smartphone },
+    { href: "/qr", label: dict.nav?.qr || "مولد QR", icon: QrCode },
+    { href: "/barcode", label: dict.nav?.barcode || "مولد الباركود", icon: Barcode },
+    { href: "/scanner", label: dict.nav?.scanner || "القارئ", icon: ScanLine },
+    { href: "/bulk", label: dict.nav?.bulk || "بالجملة", icon: Layers },
+    { href: "/pricing", label: dict.nav?.pricing || "الأسعار", icon: DollarSign },
+  ];
 
   // Hide navbar on admin pages
   if (pathname.startsWith("/admin-bkd9x")) return null;
@@ -111,21 +113,21 @@ export function Navbar() {
                       <p className="text-white font-semibold text-sm">{user.name}</p>
                       <p className="text-gray-500 text-xs mt-0.5">{user.email}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${PLAN_BADGE[user.plan] || PLAN_BADGE.free}`}>
-                        {{ free: "مجاني", pro: "احترافي", business: "أعمال" }[user.plan] || user.plan}
+                        {{ free: dict.nav?.free || "مجاني", pro: dict.nav?.pro || "احترافي", business: dict.nav?.business || "أعمال" }[user.plan] || user.plan}
                       </span>
                     </div>
                     <div className="p-2">
                       <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 text-sm transition-colors">
-                        <User className="w-4 h-4" /> لوحة التحكم
+                        <User className="w-4 h-4" /> {dict.nav?.dashboard || "لوحة التحكم"}
                       </Link>
                       <Link href="/dynamic-qr/manage" onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 text-sm transition-colors">
-                        <QrCode className="w-4 h-4" /> رموزي
+                        <QrCode className="w-4 h-4" /> {dict.nav?.my_codes || "رموزي"}
                       </Link>
                       <button onClick={logout}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10 text-red-400 text-sm w-full transition-colors mt-1 border-t border-gray-800 pt-3">
-                        <LogOut className="w-4 h-4" /> تسجيل الخروج
+                        <LogOut className="w-4 h-4" /> {dict.nav?.logout || "تسجيل الخروج"}
                       </button>
                     </div>
                   </div>
@@ -136,11 +138,11 @@ export function Navbar() {
               <>
                 <Link href="/auth/login" className="hidden md:flex btn-secondary py-2 px-4 text-sm">
                   <LogIn className="w-4 h-4" />
-                  دخول
+                  {dict.nav?.login || "دخول"}
                 </Link>
                 <Link href="/auth/register" className="hidden md:flex btn-primary py-2 px-4 text-sm">
                   <Zap className="w-4 h-4" />
-                  ابدأ مجاناً
+                  {dict.nav?.start_free || "ابدأ مجاناً"}
                 </Link>
               </>
             )}
@@ -185,7 +187,7 @@ export function Navbar() {
               ) : (
                 <>
                   <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="btn-secondary justify-center">
-                    <LogIn className="w-4 h-4" /> تسجيل الدخول
+                    <LogIn className="w-4 h-4" /> {dict.nav?.login || "تسجيل الدخول"}
                   </Link>
                   <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="btn-primary justify-center">
                     <Zap className="w-4 h-4" /> ابدأ مجاناً

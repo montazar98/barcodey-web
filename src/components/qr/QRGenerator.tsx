@@ -6,17 +6,9 @@ import {
   Download, Copy, Share2, RefreshCw, Link, FileText, Wifi, Phone, Mail, MapPin, Type,
 } from "lucide-react";
 import { clsx } from "clsx";
+import { useI18n } from "@/i18n/client";
 
 type QRType = "url" | "text" | "wifi" | "phone" | "email" | "location";
-
-const qrTypes = [
-  { id: "url" as QRType, label: "رابط", icon: Link },
-  { id: "text" as QRType, label: "نص", icon: Type },
-  { id: "wifi" as QRType, label: "واي فاي", icon: Wifi },
-  { id: "phone" as QRType, label: "هاتف", icon: Phone },
-  { id: "email" as QRType, label: "بريد", icon: Mail },
-  { id: "location" as QRType, label: "موقع", icon: MapPin },
-];
 
 const errorLevels = ["L", "M", "Q", "H"] as const;
 
@@ -33,6 +25,17 @@ function buildQRValue(type: QRType, data: Record<string, string>): string {
 }
 
 export function QRGenerator() {
+  const dict = useI18n();
+  
+  const qrTypes = [
+    { id: "url" as QRType, label: dict.qr?.type_url || "رابط", icon: Link },
+    { id: "text" as QRType, label: dict.qr?.type_text || "نص", icon: Type },
+    { id: "wifi" as QRType, label: dict.qr?.type_wifi || "واي فاي", icon: Wifi },
+    { id: "phone" as QRType, label: dict.qr?.type_phone || "هاتف", icon: Phone },
+    { id: "email" as QRType, label: dict.qr?.type_email || "بريد", icon: Mail },
+    { id: "location" as QRType, label: dict.qr?.type_location || "موقع", icon: MapPin },
+  ];
+
   const [qrType, setQrType] = useState<QRType>("url");
   const [formData, setFormData] = useState<Record<string, string>>({
     url: "https://barcodey.online",
@@ -88,9 +91,9 @@ export function QRGenerator() {
       if (!blob) return;
       try {
         await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        toast.success("تم نسخ الرمز إلى الحافظة");
+        toast.success(dict.qr?.success_copy || "تم نسخ الرمز إلى الحافظة");
       } catch {
-        toast.error("تعذّر النسخ، جرّب التنزيل");
+        toast.error(dict.qr?.error_copy || "تعذّر النسخ، جرّب التنزيل");
       }
     });
   }, []);
@@ -104,7 +107,7 @@ export function QRGenerator() {
       <div className="space-y-6">
         {/* Type selector */}
         <div className="card">
-          <h2 className="font-bold text-white mb-4">نوع المحتوى</h2>
+          <h2 className="font-bold text-white mb-4">{dict.qr?.content || "نوع المحتوى"}</h2>
           <div className="grid grid-cols-3 gap-2">
             {qrTypes.map(({ id, label, icon: Icon }) => (
               <button
@@ -126,10 +129,10 @@ export function QRGenerator() {
 
         {/* Dynamic Form */}
         <div className="card space-y-4">
-          <h2 className="font-bold text-white mb-2">المحتوى</h2>
+          <h2 className="font-bold text-white mb-2">{dict.qr?.content || "المحتوى"}</h2>
           {qrType === "url" && (
             <div>
-              <label className="label">الرابط</label>
+              <label className="label">{dict.qr?.url || "الرابط"}</label>
               <input
                 type="url"
                 className="input"
@@ -141,10 +144,10 @@ export function QRGenerator() {
           )}
           {qrType === "text" && (
             <div>
-              <label className="label">النص</label>
+              <label className="label">{dict.qr?.text || "النص"}</label>
               <textarea
                 className="input min-h-[120px] resize-none"
-                placeholder="أكتب النص هنا..."
+                placeholder={dict.qr?.text || "أكتب النص هنا..."}
                 value={formData.text}
                 onChange={(e) => setField("text", e.target.value)}
               />
@@ -153,49 +156,49 @@ export function QRGenerator() {
           {qrType === "wifi" && (
             <>
               <div>
-                <label className="label">اسم الشبكة (SSID)</label>
+                <label className="label">{dict.qr?.ssid || "اسم الشبكة (SSID)"}</label>
                 <input className="input" placeholder="MyNetwork" value={formData.ssid} onChange={(e) => setField("ssid", e.target.value)} />
               </div>
               <div>
-                <label className="label">كلمة المرور</label>
+                <label className="label">{dict.qr?.password || "كلمة المرور"}</label>
                 <input type="password" className="input" placeholder="••••••••" value={formData.password} onChange={(e) => setField("password", e.target.value)} />
               </div>
               <div>
-                <label className="label">التشفير</label>
+                <label className="label">{dict.qr?.encryption || "التشفير"}</label>
                 <select className="input" value={formData.encryption} onChange={(e) => setField("encryption", e.target.value)}>
                   <option value="WPA">WPA/WPA2</option>
                   <option value="WEP">WEP</option>
-                  <option value="nopass">بدون كلمة مرور</option>
+                  <option value="nopass">{dict.qr?.no_password || "بدون كلمة مرور"}</option>
                 </select>
               </div>
             </>
           )}
           {qrType === "phone" && (
             <div>
-              <label className="label">رقم الهاتف</label>
+              <label className="label">{dict.qr?.phone || "رقم الهاتف"}</label>
               <input className="input" placeholder="+966XXXXXXXX" value={formData.phone} onChange={(e) => setField("phone", e.target.value)} />
             </div>
           )}
           {qrType === "email" && (
             <>
               <div>
-                <label className="label">البريد الإلكتروني</label>
+                <label className="label">{dict.qr?.email || "البريد الإلكتروني"}</label>
                 <input type="email" className="input" placeholder="example@domain.com" value={formData.email} onChange={(e) => setField("email", e.target.value)} />
               </div>
               <div>
-                <label className="label">الموضوع</label>
-                <input className="input" placeholder="موضوع الرسالة" value={formData.subject} onChange={(e) => setField("subject", e.target.value)} />
+                <label className="label">{dict.qr?.subject || "الموضوع"}</label>
+                <input className="input" placeholder={dict.qr?.subject || "موضوع الرسالة"} value={formData.subject} onChange={(e) => setField("subject", e.target.value)} />
               </div>
             </>
           )}
           {qrType === "location" && (
             <>
               <div>
-                <label className="label">خط العرض (Latitude)</label>
+                <label className="label">{dict.qr?.lat || "خط العرض (Latitude)"}</label>
                 <input className="input" placeholder="24.7136" value={formData.lat} onChange={(e) => setField("lat", e.target.value)} />
               </div>
               <div>
-                <label className="label">خط الطول (Longitude)</label>
+                <label className="label">{dict.qr?.lng || "خط الطول (Longitude)"}</label>
                 <input className="input" placeholder="46.6753" value={formData.lng} onChange={(e) => setField("lng", e.target.value)} />
               </div>
             </>
@@ -204,10 +207,10 @@ export function QRGenerator() {
 
         {/* Style Controls */}
         <div className="card space-y-5">
-          <h2 className="font-bold text-white">التخصيص</h2>
+          <h2 className="font-bold text-white">{dict.qr?.customization || "التخصيص"}</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">لون الرمز</label>
+              <label className="label">{dict.qr?.fg_color || "لون الرمز"}</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={fgColor} onChange={(e) => setFgColor(e.target.value)}
                   className="w-10 h-10 rounded-lg cursor-pointer border border-gray-700 bg-transparent" />
@@ -215,7 +218,7 @@ export function QRGenerator() {
               </div>
             </div>
             <div>
-              <label className="label">لون الخلفية</label>
+              <label className="label">{dict.qr?.bg_color || "لون الخلفية"}</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)}
                   className="w-10 h-10 rounded-lg cursor-pointer border border-gray-700 bg-transparent" />
@@ -225,14 +228,14 @@ export function QRGenerator() {
           </div>
 
           <div>
-            <label className="label">الحجم: {size}px</label>
+            <label className="label">{dict.qr?.size || "الحجم:"} {size}px</label>
             <input type="range" min="128" max="512" step="8" value={size}
               onChange={(e) => setSize(Number(e.target.value))}
               className="w-full accent-brand-500" />
           </div>
 
           <div>
-            <label className="label">مستوى تصحيح الأخطاء</label>
+            <label className="label">{dict.qr?.error_level || "مستوى تصحيح الأخطاء"}</label>
             <div className="flex gap-2">
               {errorLevels.map((level) => (
                 <button key={level} onClick={() => setErrorLevel(level)}
@@ -252,7 +255,7 @@ export function QRGenerator() {
       {/* Right: Preview + Actions */}
       <div className="lg:sticky lg:top-24 space-y-6">
         <div className="card flex flex-col items-center">
-          <h2 className="font-bold text-white mb-6 self-start">معاينة الرمز</h2>
+          <h2 className="font-bold text-white mb-6 self-start">{dict.qr?.preview || "معاينة الرمز"}</h2>
           <div
             ref={qrRef}
             className="rounded-2xl overflow-hidden shadow-2xl shadow-brand-500/10 p-4"
@@ -269,7 +272,7 @@ export function QRGenerator() {
               />
             ) : (
               <div className="w-64 h-64 flex items-center justify-center text-gray-500 text-sm">
-                أدخل المحتوى لرؤية الرمز
+                {dict.qr?.empty_preview || "أدخل المحتوى لرؤية الرمز"}
               </div>
             )}
           </div>
@@ -293,7 +296,7 @@ export function QRGenerator() {
         {/* QR Value Preview */}
         {qrValue && (
           <div className="card">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">بيانات الرمز</h3>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">{dict.qr?.qr_data || "بيانات الرمز"}</h3>
             <p className="text-xs text-gray-500 font-mono break-all bg-gray-800 rounded-lg p-3">
               {qrValue}
             </p>

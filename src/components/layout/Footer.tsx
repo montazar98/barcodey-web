@@ -1,7 +1,11 @@
+"use client";
 import Link from "next/link";
 import { QrCode, Github, Twitter, Mail } from "lucide-react";
+import { useI18n } from "@/i18n/client";
 
 export function Footer() {
+  const dict = useI18n();
+
   return (
     <footer className="border-t border-gray-800 bg-gray-950 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -15,8 +19,7 @@ export function Footer() {
               <span className="text-xl font-bold gradient-text">باركودي</span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-              أداة احترافية ومتكاملة لإنشاء وتخصيص رموز QR والباركود بمختلف
-              الأنواع، مع إمكانية التصدير بجودة عالية.
+              {dict.footer?.desc || "أداة احترافية ومتكاملة لإنشاء وتخصيص رموز QR والباركود بمختلف الأنواع، مع إمكانية التصدير بجودة عالية."}
             </p>
             <div className="flex items-center gap-3 mt-6">
               <a href="#" className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-brand-400 hover:bg-gray-700 transition-colors">
@@ -33,13 +36,13 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h3 className="font-semibold text-white mb-4">الأدوات</h3>
+            <h3 className="font-semibold text-white mb-4">{dict.footer?.tools || "الأدوات"}</h3>
             <ul className="space-y-2">
               {[
-                { href: "/qr", label: "مولد رمز QR" },
-                { href: "/barcode", label: "مولد الباركود" },
-                { href: "/scanner", label: "قارئ QR/باركود" },
-                { href: "/bulk", label: "إنشاء بالجملة" },
+                { href: "/qr", label: dict.nav?.qr || "مولد رمز QR" },
+                { href: "/barcode", label: dict.nav?.barcode || "مولد الباركود" },
+                { href: "/scanner", label: dict.nav?.scanner || "قارئ QR/باركود" },
+                { href: "/bulk", label: dict.nav?.bulk || "إنشاء بالجملة" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="text-gray-400 hover:text-brand-400 text-sm transition-colors">
@@ -51,13 +54,13 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-white mb-4">الشركة</h3>
+            <h3 className="font-semibold text-white mb-4">{dict.footer?.company || "الشركة"}</h3>
             <ul className="space-y-2">
               {[
-                { href: "/pricing", label: "الأسعار" },
-                { href: "/dashboard", label: "لوحة التحكم" },
-                { href: "/about", label: "عن الموقع" },
-                { href: "/privacy", label: "سياسة الخصوصية" },
+                { href: "/pricing", label: dict.nav?.pricing || "الأسعار" },
+                { href: "/dashboard", label: dict.nav?.dashboard || "لوحة التحكم" },
+                { href: "/about", label: dict.footer?.about || "عن الموقع" },
+                { href: "/privacy", label: dict.footer?.privacy || "سياسة الخصوصية" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="text-gray-400 hover:text-brand-400 text-sm transition-colors">
@@ -71,10 +74,10 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-sm">
-            © 2024 باركودي. جميع الحقوق محفوظة.
+            © 2024 باركودي. {dict.footer?.rights || "جميع الحقوق محفوظة."}
           </p>
           <p className="text-gray-600 text-xs">
-            صُنع بـ ❤️ للمستخدمين العرب
+            {dict.footer?.made_with || "صُنع بـ ❤️ للمستخدمين العرب"}
           </p>
         </div>
       </div>

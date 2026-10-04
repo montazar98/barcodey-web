@@ -1,47 +1,56 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyTokenEdge, USER_COOKIE, ADMIN_COOKIE } from "@/lib/edge-auth";
+import { match } from '@formatjs/intl-localematcher';
+import Negotiator from 'negotiator';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Pages that require user login ("الباركود والرابط الديناميكي يعمل فقط عند تسجيل الدخول")
-const AUTH_REQUIRED = ["/barcode", "/dynamic-qr", "/bulk", "/dashboard"];
-// Pages that require admin login
-const ADMIN_REQUIRED = ["/admin-bkd9x/dashboard", "/admin-bkd9x/users", "/admin-bkd9x/qrcodes"];
+const locales = ['ar', 'en', 'ru'];
+const defaultLocale = 'ar';
 
-export async function middleware(request: NextRequest) {
+function getLocale(request: NextRequest) {
+  const headers = new Headers(request.headers);
+  const acceptLanguage = headers.get('accept-language');
+  
+  if (!acceptLanguage) return defaultLocale;
+
+  const headersObject = { 'accept-language': acceptLanguage };
+  const languages = new Negotiator({ headers: headersObject }).languages();
+  
+  try {
+    return match(languages, locales, defaultLocale);
+  } catch (e) {
+    return defaultLocale;
+  }
+}
+
+export function middleware(request: NextRequest) {
+  // Check if there is any supported locale in the pathname
   const { pathname } = request.nextUrl;
-
-  // ── Admin protection ──────────────────────────────────────────────────
-  if (ADMIN_REQUIRED.some((p) => pathname.startsWith(p))) {
-    const token = request.cookies.get(ADMIN_COOKIE)?.value;
-    const payload = await verifyTokenEdge(token);
-
-    if (!payload || payload.role?.toLowerCase() !== "admin") {
-      return NextResponse.redirect(new URL("/admin-bkd9x", request.url));
-    }
+  
+  // Exclude api, _next, static files, and admin panel
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/admin-bkd9x') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next();
   }
 
-  // ── User auth protection ───────────────────────────────────────────────
-  if (AUTH_REQUIRED.some((p) => pathname.startsWith(p))) {
-    const token = request.cookies.get(USER_COOKIE)?.value;
-    const payload = await verifyTokenEdge(token);
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
 
-    if (!payload) {
-      const loginUrl = new URL("/auth/login", request.url);
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
+  if (pathnameHasLocale) return NextResponse.next();
 
-  return NextResponse.next();
+  // Redirect if there is no locale
+  const locale = getLocale(request);
+  request.nextUrl.pathname = `/${locale}${pathname}`;
+  
+  return NextResponse.redirect(request.nextUrl);
 }
 
 export const config = {
   matcher: [
-    "/barcode/:path*",
-    "/bulk/:path*",
-    "/dynamic-qr/:path*",
-    "/dashboard/:path*",
-    "/admin-bkd9x/dashboard/:path*",
-    "/admin-bkd9x/users/:path*",
-    "/admin-bkd9x/qrcodes/:path*",
+    // Skip all internal paths (_next)
+    '/((?!api|_next/static|_next/image|favicon.ico|admin-bkd9x).*)',
   ],
 };

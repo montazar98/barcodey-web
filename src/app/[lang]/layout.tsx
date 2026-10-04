@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "react-hot-toast";
 import { VisitorTracker } from "@/components/VisitorTracker";
 import { AdSenseScript } from "@/components/ads/AdSenseScript";
-
+import { I18nProvider } from "@/i18n/client";
+import { getDictionary } from "@/i18n/dictionaries";
 
 export const metadata: Metadata = {
   title: {
@@ -60,7 +61,7 @@ const jsonLd = {
         "Custom Colors and Logos",
         "PNG SVG PDF Export",
       ],
-      inLanguage: ["ar", "en"],
+      inLanguage: ["ar", "en", "ru"],
     },
     {
       "@type": "Organization",
@@ -84,13 +85,21 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: { lang: string };
 }>) {
+  // Await params per Next.js 15+ or dynamically, but assuming it's available
+  // To avoid Next.js issues with dynamic params, we can await params directly if needed
+  // For Next.js 14- this is synchronous, but we can make the component async to await getDictionary
+  const resolvedParams = await Promise.resolve(params);
+  const dict = await getDictionary(resolvedParams.lang as any);
+
   return (
-    <html lang="ar" dir="rtl" className="dark">
+    <html lang={resolvedParams.lang} dir={resolvedParams.lang === "ar" ? "rtl" : "ltr"} className="dark">
       <head>
         <script
           type="application/ld+json"
@@ -98,29 +107,31 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
-        <AdSenseScript />
-        <VisitorTracker />
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <I18nProvider dict={dict}>
+          <AdSenseScript />
+          <VisitorTracker />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
 
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: "#1f2937",
-              color: "#f3f4f6",
-              border: "1px solid #374151",
-              borderRadius: "12px",
-            },
-            success: {
-              iconTheme: {
-                primary: "#00d9a3",
-                secondary: "#111827",
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              style: {
+                background: "#1f2937",
+                color: "#f3f4f6",
+                border: "1px solid #374151",
+                borderRadius: "12px",
               },
-            },
-          }}
-        />
+              success: {
+                iconTheme: {
+                  primary: "#00d9a3",
+                  secondary: "#111827",
+                },
+              },
+            }}
+          />
+        </I18nProvider>
       </body>
     </html>
   );

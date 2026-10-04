@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { QrCode, Mail, Lock, Eye, EyeOff, Zap, LogIn, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
+import { useI18n } from "@/i18n/client";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dict = useI18n();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
   const [email, setEmail] = useState("");
@@ -17,10 +19,10 @@ function LoginForm() {
 
   const getFeatureNotice = () => {
     if (!redirectUrl || redirectUrl === "/dashboard") return null;
-    if (redirectUrl.includes("barcode")) return "مولد الباركود متاح حصرياً للأعضاء المسجلين";
-    if (redirectUrl.includes("dynamic-qr")) return "إنشاء وإدارة رموز QR الديناميكية تتطلب تسجيل الدخول";
-    if (redirectUrl.includes("bulk")) return "الإنشاء بالجملة يتطلب تسجيل الدخول";
-    return "يرجى تسجيل الدخول للوصول إلى هذه الصفحة";
+    if (redirectUrl.includes("barcode")) return dict.auth?.barcode_only_members;
+    if (redirectUrl.includes("dynamic-qr")) return dict.auth?.dynamic_qr_login;
+    if (redirectUrl.includes("bulk")) return dict.auth?.bulk_login;
+    return dict.auth?.default_login;
   };
 
   const notice = getFeatureNotice();
@@ -36,7 +38,7 @@ function LoginForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success(`مرحباً، ${data.user.name}! 👋`);
+      toast.success(`${dict.auth?.hello}, ${data.user.name}! 👋`);
       router.push(redirectUrl);
       router.refresh();
     } catch (e: any) {
@@ -54,10 +56,10 @@ function LoginForm() {
           <div className="w-12 h-12 rounded-2xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
             <QrCode className="w-6 h-6 text-gray-950" />
           </div>
-          <span className="text-2xl font-black gradient-text">باركودي</span>
+          <span className="text-2xl font-black gradient-text">{dict.nav?.brand}</span>
         </Link>
-        <h1 className="text-3xl font-black text-white mb-2">أهلاً بعودتك!</h1>
-        <p className="text-gray-400">سجّل دخولك للوصول إلى كافة الميزات</p>
+        <h1 className="text-3xl font-black text-white mb-2">{dict.auth?.welcome_back}</h1>
+        <p className="text-gray-400">{dict.auth?.login_desc}</p>
       </div>
 
       {/* Feature notice banner if redirected */}
@@ -72,7 +74,7 @@ function LoginForm() {
       <div className="card">
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="label">البريد الإلكتروني</label>
+            <label className="label">{dict.auth?.email}</label>
             <div className="relative">
               <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
@@ -89,7 +91,7 @@ function LoginForm() {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="label mb-0">كلمة المرور</label>
+              <label className="label mb-0">{dict.auth?.password}</label>
             </div>
             <div className="relative">
               <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -118,21 +120,21 @@ function LoginForm() {
             className="btn-primary w-full justify-center py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <><div className="w-4 h-4 border-2 border-gray-950 border-t-transparent rounded-full animate-spin" /> جاري الدخول...</>
+              <><div className="w-4 h-4 border-2 border-gray-950 border-t-transparent rounded-full animate-spin" /> {dict.auth?.logging_in}</>
             ) : (
-              <><LogIn className="w-5 h-5" /> تسجيل الدخول</>
+              <><LogIn className="w-5 h-5" /> {dict.auth?.login_btn}</>
             )}
           </button>
         </form>
 
         <div className="mt-6 pt-5 border-t border-gray-800 text-center">
           <p className="text-gray-400 text-sm">
-            ليس لديك حساب؟{" "}
+            {dict.auth?.no_account}{" "}
             <Link
               href={redirectUrl ? `/auth/register?redirect=${encodeURIComponent(redirectUrl)}` : "/auth/register"}
               className="text-brand-400 hover:text-brand-300 font-semibold"
             >
-              إنشاء حساب مجاني
+              {dict.auth?.create_free_account}
             </Link>
           </p>
         </div>
@@ -140,8 +142,8 @@ function LoginForm() {
 
       {/* Features reminder */}
       <div className="grid grid-cols-3 gap-3 mt-6">
-        {["رموز ديناميكية", "مولد باركود كامل", "تحليلات دقيقة"].map((f) => (
-          <div key={f} className="text-center bg-gray-900/50 rounded-xl py-3 px-2 border border-gray-800">
+        {[dict.auth?.free_plan_perk_2, dict.auth?.free_plan_perk_1, dict.auth?.free_plan_perk_3].map((f, i) => (
+          <div key={i} className="text-center bg-gray-900/50 rounded-xl py-3 px-2 border border-gray-800">
             <Zap className="w-4 h-4 text-brand-400 mx-auto mb-1" />
             <p className="text-gray-400 text-xs">{f}</p>
           </div>

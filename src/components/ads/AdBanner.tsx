@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useI18n } from "@/i18n/client";
 
 interface AdBannerProps {
   slotKey?: "adsense_slot_top" | "adsense_slot_bottom" | string;
@@ -11,6 +12,7 @@ export function AdBanner({ slotKey = "adsense_slot_top", format = "auto", classN
   const [adConfig, setAdConfig] = useState<{ client: string; slot: string } | null>(null);
   const adRef = useRef<HTMLModElement>(null);
   const pushedRef = useRef(false);
+  const dict = useI18n();
 
   useEffect(() => {
     fetch("/api/config/public")
@@ -41,7 +43,7 @@ export function AdBanner({ slotKey = "adsense_slot_top", format = "auto", classN
 
   return (
     <div className={`w-full overflow-hidden my-6 text-center ${className}`}>
-      <span className="text-[10px] text-gray-600 uppercase tracking-widest block mb-1">إعلان</span>
+      <span className="text-[10px] text-gray-600 uppercase tracking-widest block mb-1">{dict.ads?.label || "Advertisement"}</span>
       <ins
         ref={adRef}
         className="adsbygoogle"

@@ -5,17 +5,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { QrCode, Mail, Lock, Eye, EyeOff, User, CheckCircle, UserPlus, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
 import { clsx } from "clsx";
-
-const REQUIREMENTS = [
-  { label: "8 أحرف على الأقل", test: (p: string) => p.length >= 8 },
-  { label: "حرف كبير", test: (p: string) => /[A-Z]/.test(p) },
-  { label: "رقم", test: (p: string) => /\d/.test(p) },
-];
+import { useI18n } from "@/i18n/client";
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dict = useI18n();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
+
+  const REQUIREMENTS = [
+    { label: dict.auth?.req_length || "8 characters minimum", test: (p: string) => p.length >= 8 },
+    { label: dict.auth?.req_uppercase || "Uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+    { label: dict.auth?.req_number || "Number", test: (p: string) => /\d/.test(p) },
+  ];
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,8 +30,8 @@ function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) { toast.error("يجب الموافقة على الشروط"); return; }
-    if (strength < 2) { toast.error("كلمة المرور ضعيفة جداً"); return; }
+    if (!agreed) { toast.error(dict.auth?.must_agree_terms || "You must agree to the terms"); return; }
+    if (strength < 2) { toast.error(dict.auth?.password_strength_too_weak || "Password is too weak"); return; }
 
     setLoading(true);
     try {
@@ -40,7 +42,7 @@ function RegisterForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success("تم إنشاء حسابك بنجاح! 🎉");
+      toast.success(dict.auth?.account_created || "Account created successfully! 🎉");
       router.push(redirectUrl);
       router.refresh();
     } catch (e: any) {
@@ -58,21 +60,21 @@ function RegisterForm() {
           <div className="w-12 h-12 rounded-2xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
             <QrCode className="w-6 h-6 text-gray-950" />
           </div>
-          <span className="text-2xl font-black gradient-text">باركودي</span>
+          <span className="text-2xl font-black gradient-text">{dict.nav?.brand}</span>
         </Link>
-        <h1 className="text-3xl font-black text-white mb-2">إنشاء حساب مجاني</h1>
-        <p className="text-gray-400">سجّل الآن للوصول الكامل إلى الباركود ورموز QR الديناميكية</p>
+        <h1 className="text-3xl font-black text-white mb-2">{dict.auth?.create_free_account}</h1>
+        <p className="text-gray-400">{dict.auth?.create_account_desc}</p>
       </div>
 
       <div className="card">
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="label">الاسم الكامل</label>
+            <label className="label">{dict.auth?.full_name}</label>
             <div className="relative">
               <User className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
                 className="input pr-10"
-                placeholder="محمد أحمد"
+                placeholder={dict.auth?.name_placeholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -81,7 +83,7 @@ function RegisterForm() {
           </div>
 
           <div>
-            <label className="label">البريد الإلكتروني</label>
+            <label className="label">{dict.auth?.email}</label>
             <div className="relative">
               <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
@@ -96,7 +98,7 @@ function RegisterForm() {
           </div>
 
           <div>
-            <label className="label">كلمة المرور</label>
+            <label className="label">{dict.auth?.password}</label>
             <div className="relative">
               <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
@@ -150,9 +152,9 @@ function RegisterForm() {
               {agreed && <CheckCircle className="w-3.5 h-3.5 text-gray-950" />}
             </div>
             <span className="text-gray-400 text-sm">
-              أوافق على{" "}
-              <Link href="/privacy" className="text-brand-400 hover:underline">سياسة الخصوصية</Link>
-              {" "}وشروط الاستخدام
+              {dict.auth?.agree_terms}{" "}
+              <Link href="/privacy" className="text-brand-400 hover:underline">{dict.footer?.privacy}</Link>
+              {" "}{dict.auth?.terms_of_use}
             </span>
           </label>
 
@@ -162,21 +164,21 @@ function RegisterForm() {
             className="btn-primary w-full justify-center py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <><div className="w-4 h-4 border-2 border-gray-950 border-t-transparent rounded-full animate-spin" /> جاري الإنشاء...</>
+              <><div className="w-4 h-4 border-2 border-gray-950 border-t-transparent rounded-full animate-spin" /> {dict.auth?.registering}</>
             ) : (
-              <><UserPlus className="w-5 h-5" /> إنشاء الحساب</>
+              <><UserPlus className="w-5 h-5" /> {dict.auth?.register_btn}</>
             )}
           </button>
         </form>
 
         <div className="mt-5 pt-4 border-t border-gray-800 text-center">
           <p className="text-gray-400 text-sm">
-            لديك حساب بالفعل؟{" "}
+            {dict.auth?.has_account}{" "}
             <Link
               href={redirectUrl ? `/auth/login?redirect=${encodeURIComponent(redirectUrl)}` : "/auth/login"}
               className="text-brand-400 hover:text-brand-300 font-semibold"
             >
-              تسجيل الدخول
+              {dict.auth?.login_now}
             </Link>
           </p>
         </div>
@@ -184,10 +186,10 @@ function RegisterForm() {
 
       {/* Free plan perks */}
       <div className="mt-6 card border-brand-500/20 bg-brand-500/5">
-        <p className="text-brand-400 font-semibold text-sm mb-3">✨ ميزات حسابك المجاني فوراً</p>
+        <p className="text-brand-400 font-semibold text-sm mb-3">{dict.auth?.free_plan_perks_title}</p>
         <div className="grid grid-cols-2 gap-2">
-          {["إنشاء الباركود بجميع أنواعه", "رموز QR ديناميكية ذكية", "تتبع وتحليلات الزيارات", "تصدير عالي الدقة"].map((f) => (
-            <div key={f} className="flex items-center gap-2 text-gray-400 text-xs">
+          {[dict.auth?.free_plan_perk_1, dict.auth?.free_plan_perk_2, dict.auth?.free_plan_perk_3, dict.auth?.free_plan_perk_4].map((f, i) => (
+            <div key={i} className="flex items-center gap-2 text-gray-400 text-xs">
               <CheckCircle className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
               {f}
             </div>
@@ -201,7 +203,7 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <Suspense fallback={<div className="text-gray-400">جاري التحميل...</div>}>
+      <Suspense fallback={<div className="text-gray-400">Loading...</div>}>
         <RegisterForm />
       </Suspense>
     </div>

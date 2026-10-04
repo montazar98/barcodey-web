@@ -23,13 +23,13 @@ export function Navbar() {
   const [authLoading, setAuthLoading] = useState(true);
 
   const navLinks = [
-    { href: "/dynamic-qr", label: dict.nav?.dynamic_qr || dict.nav?.dynamic_qr || "QR ديناميكي", icon: Zap },
-    { href: "/app-links", label: dict.nav?.app_links || dict.nav?.app_links || "روابط التطبيقات", icon: Smartphone },
-    { href: "/qr", label: dict.nav?.qr || "مولد QR", icon: QrCode },
-    { href: "/barcode", label: dict.nav?.barcode || "مولد الباركود", icon: Barcode },
-    { href: "/scanner", label: dict.nav?.scanner || "القارئ", icon: ScanLine },
-    { href: "/bulk", label: dict.nav?.bulk || "بالجملة", icon: Layers },
-    { href: "/pricing", label: dict.nav?.pricing || "الأسعار", icon: DollarSign },
+    { href: "/dynamic-qr", label: dict.nav?.dynamic_qr, icon: Zap },
+    { href: "/app-links", label: dict.nav?.app_links, icon: Smartphone },
+    { href: "/qr", label: dict.nav?.qr, icon: QrCode },
+    { href: "/barcode", label: dict.nav?.barcode, icon: Barcode },
+    { href: "/scanner", label: dict.nav?.scanner, icon: ScanLine },
+    { href: "/bulk", label: dict.nav?.bulk, icon: Layers },
+    { href: "/pricing", label: dict.nav?.pricing, icon: DollarSign },
   ];
 
   // Hide navbar on admin pages
@@ -66,7 +66,7 @@ export function Navbar() {
               <QrCode className="w-5 h-5 text-gray-950" />
             </div>
             <span className="text-xl font-bold">
-              <span className="gradient-text">باركودي</span>
+              <span className="gradient-text">{dict.nav?.brand}</span>
             </span>
           </Link>
 
@@ -113,21 +113,21 @@ export function Navbar() {
                       <p className="text-white font-semibold text-sm">{user.name}</p>
                       <p className="text-gray-500 text-xs mt-0.5">{user.email}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full mt-2 inline-block ${PLAN_BADGE[user.plan] || PLAN_BADGE.free}`}>
-                        {{ free: dict.nav?.free || "مجاني", pro: dict.nav?.pro || "احترافي", business: dict.nav?.business || "أعمال" }[user.plan] || user.plan}
+                        {{ free: dict.nav?.free, pro: dict.nav?.pro, business: dict.nav?.business }[user.plan] || user.plan}
                       </span>
                     </div>
                     <div className="p-2">
                       <Link href="/dashboard" onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 text-sm transition-colors">
-                        <User className="w-4 h-4" /> {dict.nav?.dashboard || "لوحة التحكم"}
+                        <User className="w-4 h-4" /> {dict.nav?.dashboard}
                       </Link>
                       <Link href="/dynamic-qr/manage" onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 text-gray-300 text-sm transition-colors">
-                        <QrCode className="w-4 h-4" /> {dict.nav?.my_codes || "رموزي"}
+                        <QrCode className="w-4 h-4" /> {dict.nav?.my_codes}
                       </Link>
                       <button onClick={logout}
                         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-500/10 text-red-400 text-sm w-full transition-colors mt-1 border-t border-gray-800 pt-3">
-                        <LogOut className="w-4 h-4" /> {dict.nav?.logout || "تسجيل الخروج"}
+                        <LogOut className="w-4 h-4" /> {dict.nav?.logout}
                       </button>
                     </div>
                   </div>
@@ -138,11 +138,11 @@ export function Navbar() {
               <>
                 <Link href="/auth/login" className="hidden md:flex btn-secondary py-2 px-4 text-sm">
                   <LogIn className="w-4 h-4" />
-                  {dict.nav?.login || "دخول"}
+                  {dict.nav?.login}
                 </Link>
                 <Link href="/auth/register" className="hidden md:flex btn-primary py-2 px-4 text-sm">
                   <Zap className="w-4 h-4" />
-                  {dict.nav?.start_free || "ابدأ مجاناً"}
+                  {dict.nav?.start_free}
                 </Link>
               </>
             )}
@@ -178,19 +178,19 @@ export function Navbar() {
               {user ? (
                 <>
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn-secondary justify-center">
-                    <User className="w-4 h-4" /> لوحة التحكم
+                    <User className="w-4 h-4" /> {dict.nav?.dashboard}
                   </Link>
                   <button onClick={() => { logout(); setMobileOpen(false); }} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-400 bg-red-500/5 text-sm font-medium">
-                    <LogOut className="w-4 h-4" /> تسجيل الخروج
+                    <LogOut className="w-4 h-4" /> {dict.nav?.logout}
                   </button>
                 </>
               ) : (
                 <>
                   <Link href="/auth/login" onClick={() => setMobileOpen(false)} className="btn-secondary justify-center">
-                    <LogIn className="w-4 h-4" /> {dict.nav?.login || "تسجيل الدخول"}
+                    <LogIn className="w-4 h-4" /> {dict.nav?.login}
                   </Link>
                   <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="btn-primary justify-center">
-                    <Zap className="w-4 h-4" /> ابدأ مجاناً
+                    <Zap className="w-4 h-4" /> {dict.nav?.start_free}
                   </Link>
                 </>
               )}

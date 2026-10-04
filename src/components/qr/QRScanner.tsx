@@ -1,10 +1,12 @@
 "use client";
+import { useI18n } from "@/i18n/client";
 import { useState, useRef, useCallback } from "react";
 import { Camera, Upload, Copy, ExternalLink, CheckCircle, XCircle, ScanLine } from "lucide-react";
 import toast from "react-hot-toast";
 import { clsx } from "clsx";
 
 export function QRScanner() {
+  const t = useI18n();
   const [mode, setMode] = useState<"camera" | "upload">("upload");
   const [result, setResult] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -51,7 +53,7 @@ export function QRScanner() {
       const decoded = await decodeFromImage(img);
       if (decoded) {
         setResult(decoded);
-        toast.success("تم قراءة الرمز بنجاح!");
+        toast.success(t.scanner.success_toast);
       } else {
         // Try a simple approach - show the image and hint
         toast.error("لم يتم التعرف على الرمز. يرجى التأكد من وضوح الصورة.");
@@ -91,7 +93,7 @@ export function QRScanner() {
         videoRef.current.play();
       }
       setCameraStarted(true);
-      toast.success("تم تشغيل الكاميرا");
+      toast.success(t.scanner.start_camera_toast || "Camera started");
 
       // Start scanning frames
       const scanLoop = async () => {
@@ -111,7 +113,7 @@ export function QRScanner() {
               const codes = await detector.detect(canvas);
               if (codes.length > 0) {
                 setResult(codes[0].rawValue);
-                toast.success("تم قراءة الرمز!");
+                toast.success(t.scanner.success_toast);
                 stopCamera();
                 return;
               }
@@ -126,7 +128,7 @@ export function QRScanner() {
       };
       requestAnimationFrame(scanLoop);
     } catch {
-      toast.error("تعذّر الوصول إلى الكاميرا");
+      toast.error(t.scanner.error_camera);
     }
   };
 
@@ -139,7 +141,7 @@ export function QRScanner() {
   const copyResult = async () => {
     if (!result) return;
     await navigator.clipboard.writeText(result);
-    toast.success("تم النسخ!");
+    toast.success(t.scanner.success_copy);
   };
 
   const isUrl = result && (result.startsWith("http://") || result.startsWith("https://"));
@@ -165,7 +167,7 @@ export function QRScanner() {
               )}
             >
               {m === "upload" ? <Upload className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
-              {m === "upload" ? "رفع صورة" : "الكاميرا"}
+              {m === "upload" ? t.scanner.upload : t.scanner.camera}
             </button>
           ))}
         </div>
@@ -186,9 +188,9 @@ export function QRScanner() {
           onDrop={handleDrop}
         >
           <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-          <p className="text-white font-medium mb-2">اسحب وأفلت الصورة هنا</p>
-          <p className="text-gray-400 text-sm">أو انقر للاختيار من الجهاز</p>
-          <p className="text-gray-600 text-xs mt-2">PNG, JPG, WEBP, GIF</p>
+          <p className="text-white font-medium mb-2">{t.scanner.drag_drop}</p>
+          <p className="text-gray-400 text-sm">{t.scanner.click_upload}</p>
+          <p className="text-gray-600 text-xs mt-2">{t.scanner.supported_formats}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -205,13 +207,13 @@ export function QRScanner() {
           {!cameraStarted ? (
             <div className="py-12">
               <Camera className="w-16 h-16 text-gray-500 mx-auto mb-6" />
-              <p className="text-gray-300 mb-2 font-medium">امسح رمز QR أو باركود</p>
+              <p className="text-gray-300 mb-2 font-medium">{t.scanner.scan_instruction}</p>
               <p className="text-gray-500 text-sm mb-6">
-                سيتم المسح تلقائياً عند اكتشاف الرمز
+                {t.scanner.scan_auto}
               </p>
               <button onClick={startCamera} className="btn-primary">
                 <Camera className="w-5 h-5" />
-                تشغيل الكاميرا
+                {t.scanner.start_camera}
               </button>
             </div>
           ) : (
@@ -237,11 +239,11 @@ export function QRScanner() {
               <canvas ref={canvasRef} className="hidden" />
               <div className="flex items-center justify-center gap-2 text-brand-400">
                 <div className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
-                <span className="text-sm">جاري المسح...</span>
+                <span className="text-sm">{t.scanner.scanning}</span>
               </div>
               <button onClick={stopCamera} className="btn-secondary w-full">
                 <XCircle className="w-5 h-5" />
-                إيقاف الكاميرا
+                {t.scanner.stop_camera}
               </button>
             </div>
           )}
@@ -253,8 +255,8 @@ export function QRScanner() {
         <div className="card flex items-center gap-4">
           <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
           <div>
-            <p className="text-gray-200 font-medium">جاري قراءة الرمز...</p>
-            <p className="text-gray-500 text-xs">تحليل الصورة</p>
+            <p className="text-gray-200 font-medium">{t.scanner.analyzing}</p>
+            <p className="text-gray-500 text-xs">{t.scanner.analyzing_desc}</p>
           </div>
         </div>
       )}
@@ -265,7 +267,7 @@ export function QRScanner() {
           <div className="flex items-start gap-3 mb-4">
             <CheckCircle className="w-6 h-6 text-brand-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-white mb-2">تم قراءة الرمز بنجاح ✓</h3>
+              <h3 className="font-bold text-white mb-2">{t.scanner.success_scan}</h3>
               <div className="bg-gray-800 rounded-xl p-4">
                 <p className="text-gray-300 text-sm break-all font-mono">{result}</p>
               </div>
@@ -274,7 +276,7 @@ export function QRScanner() {
           <div className="flex gap-3">
             <button onClick={copyResult} className="btn-secondary flex-1 justify-center text-sm">
               <Copy className="w-4 h-4" />
-              نسخ النص
+              {t.scanner.copy}
             </button>
             {isUrl && (
               <a
@@ -284,7 +286,7 @@ export function QRScanner() {
                 className="btn-primary flex-1 justify-center text-sm"
               >
                 <ExternalLink className="w-4 h-4" />
-                فتح الرابط
+                {t.scanner.open_link}
               </a>
             )}
           </div>
@@ -296,10 +298,9 @@ export function QRScanner() {
         <div className="flex items-start gap-3">
           <ScanLine className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-gray-300 text-sm font-medium">ملاحظة حول المتصفحات</p>
+            <p className="text-gray-300 text-sm font-medium">{t.scanner.browser_note}</p>
             <p className="text-gray-500 text-xs mt-1">
-              قراءة الباركود بالكاميرا تعمل على Chrome و Edge الحديثة.
-              Safari يدعم رفع الصور فقط. لأفضل تجربة استخدم Chrome.
+              {t.scanner.browser_note_desc}
             </p>
           </div>
         </div>

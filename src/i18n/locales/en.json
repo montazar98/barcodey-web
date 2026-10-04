@@ -94,5 +94,121 @@
     "success_svg": "Code downloaded as SVG",
     "success_copy": "Code copied to clipboard",
     "error_copy": "Failed to copy, try downloading"
+  },
+  "barcode": {
+    "title": "Barcode Generator",
+    "desc": "Create professional barcodes in over 20 formats",
+    "gradient_title": "Barcode",
+    "page_title": "Generator",
+    "type": "Barcode Type",
+    "value": "Barcode Value",
+    "placeholder": "Enter value...",
+    "invalid_value": "Invalid value for this barcode type",
+    "customization": "Customization",
+    "line_color": "Line Color",
+    "bg_color": "Background Color",
+    "line_width": "Line Width: ",
+    "height": "Height: ",
+    "show_text": "Show Text Value",
+    "preview": "Barcode Preview",
+    "download_svg": "Download SVG",
+    "download_png": "Download PNG",
+    "success_svg": "Barcode downloaded as SVG",
+    "success_png": "Barcode downloaded as PNG"
+  },
+  "scanner": {
+    "title": "QR & Barcode Scanner",
+    "desc": "Scan any code using your camera or upload an image",
+    "page_title": "Scanner",
+    "gradient_title": "QR & Barcode",
+    "upload": "Upload Image",
+    "camera": "Camera",
+    "drag_drop": "Drag & drop image here",
+    "click_upload": "or click to select from device",
+    "supported_formats": "PNG, JPG, WEBP, GIF",
+    "scan_instruction": "Scan QR or Barcode",
+    "scan_auto": "Scanning is automatic when a code is detected",
+    "start_camera": "Start Camera",
+    "scanning": "Scanning...",
+    "stop_camera": "Stop Camera",
+    "analyzing": "Reading code...",
+    "analyzing_desc": "Analyzing image",
+    "success_scan": "Code read successfully ✓",
+    "success_toast": "Code read!",
+    "copy": "Copy Text",
+    "open_link": "Open Link",
+    "browser_note": "Browser Note",
+    "browser_desc": "Barcode scanning via camera works on modern Chrome and Edge. Safari only supports image upload. For the best experience, use Chrome.",
+    "error_no_code": "No code found",
+    "error_camera": "Could not access camera",
+    "success_copy": "Copied!"
+  },
+  "bulk": {
+    "title": "Bulk Generator",
+    "gradient_title": "Bulk",
+    "page_title": "Generator",
+    "desc": "Generate hundreds of codes at once and export them as a ZIP",
+    "input_data": "Enter Data",
+    "free_limit": "Free limit: {limit} codes",
+    "placeholder": "Enter a URL or value per line:\nhttps://example.com\nhttps://google.com\n012345678905",
+    "input_hint": "One line = one code. Free limit is {limit} lines.",
+    "colors": "Customize Colors",
+    "fg_color": "Code Color",
+    "bg_color": "Background Color",
+    "size": "Size: ",
+    "generate": "Generate Codes",
+    "download_all": "Download All",
+    "upgrade_notice": "Free Limit Exceeded",
+    "upgrade_desc": "Upgrade to the Pro plan to generate unlimited codes",
+    "generated_codes": "Generated Codes ({count})",
+    "download": "Download",
+    "error_empty": "Enter at least one URL or value",
+    "error_limit": "Free limit is {limit} codes. Upgrade to Pro for more.",
+    "success_generate": "Generated {count} codes",
+    "success_downloading": "Preparing files for download...",
+    "success_downloaded": "All codes downloaded!"
+  },
+  "pricing": {
+    "title": "Pricing & Plans",
+    "desc": "Choose the right plan for your needs",
+    "gradient_title": "Plan",
+    "choose_plan": "Choose Your",
+    "subtitle": "Transparent pricing with no hidden fees",
+    "most_popular": "Most Popular",
+    "monthly": "/month",
+    "faq": "Frequently Asked Questions",
+    "subscribe": "Subscribe Now",
+    "start_free": "Start for Free",
+    "free_plan": "Free",
+    "pro_plan": "Pro Subscription",
+    "free_desc": "Basic plan for limited use",
+    "pro_desc": "For professionals and businesses",
+    "features": {
+      "barcode": "Support for all barcode types",
+      "scanner": "Advanced camera scanner",
+      "export": "SVG and PDF export",
+      "bulk": "Bulk generation tool",
+      "logo": "Custom logo on codes",
+      "links": "Unified app links",
+      "analytics": "Advanced code analytics"
+    },
+    "faqs": [
+      {
+        "q": "Can I cancel anytime?",
+        "a": "Yes, you can cancel your subscription at any time with no extra fees."
+      },
+      {
+        "q": "Is there a free trial?",
+        "a": "Yes, you can try the Pro plan free for 14 days."
+      },
+      {
+        "q": "What payment methods are available?",
+        "a": "We accept credit cards, Apple Pay, and Google Pay."
+      },
+      {
+        "q": "Can I upgrade or downgrade?",
+        "a": "Of course, you can change your plan at any time from the dashboard."
+      }
+    ]
   }
 }

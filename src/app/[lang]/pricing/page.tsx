@@ -4,21 +4,19 @@ import { Check, Zap, Crown, Building2 } from "lucide-react";
 import { clsx } from "clsx";
 import { getSiteConfig } from "@/lib/services";
 import { SubscribeButton } from "@/components/pricing/SubscribeButton";
+import { getDictionary } from "@/i18n/dictionaries";
 
-export const metadata: Metadata = {
-  title: "الأسعار والاشتراكات",
-  description: "اختر الخطة المناسبة لاحتياجاتك",
-};
+export async function generateMetadata({ params: { lang } }: { params: { lang: string } }): Promise<Metadata> {
+  const t = await getDictionary(lang as any);
+  return {
+    title: t.pricing.title,
+    description: t.pricing.desc,
+  };
+}
 
-const faqs = [
-  { q: "هل يمكنني الإلغاء في أي وقت؟", a: "نعم، يمكنك إلغاء الاشتراك في أي وقت دون أي رسوم إضافية." },
-  { q: "هل تتوفر فترة تجربة مجانية؟", a: "نعم، يمكنك تجربة الخطة الاحترافية مجاناً لمدة 14 يوماً." },
-  { q: "ما طرق الدفع المتاحة؟", a: "نقبل بطاقات الائتمان، وبطاقات مدى، وApple Pay، وGoogle Pay." },
-  { q: "هل يمكن ترقية أو تخفيض الخطة؟", a: "بالطبع، يمكنك تغيير خطتك في أي وقت من لوحة التحكم." },
-];
-
-export default async function PricingPage() {
+export default async function PricingPage({ params: { lang } }: { params: { lang: string } }) {
   const config = await getSiteConfig();
+  const t = await getDictionary(lang as any);
 
   const discountActive = config.discount_active === "true";
   const discountPercent = Number(config.discount_percent || 0);
@@ -36,48 +34,48 @@ export default async function PricingPage() {
   const plans = [
     {
       id: "FREE",
-      name: config.free_plan_name || "مجاني",
+      name: config.free_plan_name || t.pricing.free_plan,
       nameEn: "Free",
       price: freePrice.current,
       originalPrice: freePrice.original,
-      period: "/شهرياً",
+      period: t.pricing.monthly,
       icon: Zap,
       color: "gray",
-      description: "الخطة الأساسية للاستخدام المحدود",
+      description: t.pricing.free_desc,
       features: [
-        config.free_feat_barcode === "true" ? "دعم جميع أنواع الباركود" : null,
-        config.free_feat_scanner === "true" ? "قارئ متقدم بالكاميرا" : null,
-        config.free_feat_export_svg === "true" ? "تصدير بصيغة SVG و PDF" : null,
-        config.free_feat_bulk === "true" ? "أداة الإنشاء بالجملة" : null,
-        config.free_feat_logo === "true" ? "إضافة شعار مخصص للرموز" : null,
-        config.free_feat_links === "true" ? "روابط التطبيقات الموحدة" : null,
-        config.free_feat_analytics === "true" ? "إحصائيات متقدمة للرموز" : null,
+        config.free_feat_barcode === "true" ? t.pricing.features.barcode : null,
+        config.free_feat_scanner === "true" ? t.pricing.features.scanner : null,
+        config.free_feat_export_svg === "true" ? t.pricing.features.export : null,
+        config.free_feat_bulk === "true" ? t.pricing.features.bulk : null,
+        config.free_feat_logo === "true" ? t.pricing.features.logo : null,
+        config.free_feat_links === "true" ? t.pricing.features.links : null,
+        config.free_feat_analytics === "true" ? t.pricing.features.analytics : null,
       ].filter(Boolean) as string[],
-      cta: "ابدأ مجاناً",
-      href: "/qr",
+      cta: t.pricing.start_free,
+      href: `/${lang}/qr`,
       popular: false,
     },
     {
       id: "PRO",
-      name: config.pro_plan_name || "الاشتراك المدفوع",
+      name: config.pro_plan_name || t.pricing.pro_plan,
       nameEn: "Pro",
       price: proPrice.current,
       originalPrice: proPrice.original,
-      period: "/شهرياً",
+      period: t.pricing.monthly,
       icon: Crown,
       color: "brand",
-      description: "للمحترفين وأصحاب الأعمال",
+      description: t.pricing.pro_desc,
       features: [
-        config.pro_feat_barcode === "true" ? "دعم جميع أنواع الباركود" : null,
-        config.pro_feat_scanner === "true" ? "قارئ متقدم بالكاميرا" : null,
-        config.pro_feat_export_svg === "true" ? "تصدير بصيغة SVG و PDF" : null,
-        config.pro_feat_bulk === "true" ? "أداة الإنشاء بالجملة" : null,
-        config.pro_feat_logo === "true" ? "إضافة شعار مخصص للرموز" : null,
-        config.pro_feat_links === "true" ? "روابط التطبيقات الموحدة" : null,
-        config.pro_feat_analytics === "true" ? "إحصائيات متقدمة للرموز" : null,
+        config.pro_feat_barcode === "true" ? t.pricing.features.barcode : null,
+        config.pro_feat_scanner === "true" ? t.pricing.features.scanner : null,
+        config.pro_feat_export_svg === "true" ? t.pricing.features.export : null,
+        config.pro_feat_bulk === "true" ? t.pricing.features.bulk : null,
+        config.pro_feat_logo === "true" ? t.pricing.features.logo : null,
+        config.pro_feat_links === "true" ? t.pricing.features.links : null,
+        config.pro_feat_analytics === "true" ? t.pricing.features.analytics : null,
       ].filter(Boolean) as string[],
-      cta: "اشترك الآن",
-      href: "/dashboard",
+      cta: t.pricing.subscribe,
+      href: `/${lang}/dashboard`,
       popular: true,
     }
   ];
@@ -88,9 +86,9 @@ export default async function PricingPage() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
-            اختر <span className="gradient-text">خطتك</span>
+            {t.pricing.choose_plan} <span className="gradient-text">{t.pricing.gradient_title}</span>
           </h1>
-          <p className="text-gray-400 text-xl">أسعار شفافة بدون رسوم خفية</p>
+          <p className="text-gray-400 text-xl">{t.pricing.subtitle}</p>
         </div>
 
         {/* Plans */}
@@ -110,7 +108,7 @@ export default async function PricingPage() {
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-brand-500 text-gray-950 text-xs font-bold px-4 py-1.5 rounded-full">
-                      الأكثر شيوعاً
+                      {t.pricing.most_popular}
                     </span>
                   </div>
                 )}
@@ -166,9 +164,9 @@ export default async function PricingPage() {
 
         {/* FAQ */}
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold text-white text-center mb-8">أسئلة شائعة</h2>
+          <h2 className="text-2xl font-bold text-white text-center mb-8">{t.pricing.faq}</h2>
           <div className="space-y-4">
-            {faqs.map(({ q, a }) => (
+            {t.pricing.faqs.map(({ q, a }) => (
               <div key={q} className="card">
                 <h3 className="font-semibold text-white mb-2">{q}</h3>
                 <p className="text-gray-400 text-sm">{a}</p>

@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/i18n/client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import JsBarcode from "jsbarcode";
 import toast from "react-hot-toast";
@@ -28,6 +29,7 @@ const DEFAULT_VALUES: Record<string, string> = {
 };
 
 export function BarcodeGenerator() {
+  const t = useI18n();
   const svgRef = useRef<SVGSVGElement>(null);
   const [format, setFormat] = useState("CODE128");
   const [value, setValue] = useState("Barcodey123");
@@ -55,7 +57,7 @@ export function BarcodeGenerator() {
       });
       setError("");
     } catch (e) {
-      setError("القيمة غير صالحة لهذا النوع من الباركود");
+      setError(t.barcode.invalid_value);
     }
   }, [format, value, lineColor, bgColor, width, height, displayValue]);
 
@@ -77,7 +79,7 @@ export function BarcodeGenerator() {
     link.download = "barcodey.svg";
     link.href = URL.createObjectURL(blob);
     link.click();
-    toast.success("تم تنزيل الباركود بصيغة SVG");
+    toast.success(t.barcode.success_svg);
   };
 
   const downloadPNG = () => {
@@ -96,7 +98,7 @@ export function BarcodeGenerator() {
       link.download = "barcodey.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-      toast.success("تم تنزيل الباركود بصيغة PNG");
+      toast.success(t.barcode.success_png);
     };
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
   };
@@ -106,7 +108,7 @@ export function BarcodeGenerator() {
       {/* Controls */}
       <div className="space-y-6">
         <div className="card">
-          <h2 className="font-bold text-white mb-4">نوع الباركود</h2>
+          <h2 className="font-bold text-white mb-4">{t.barcode.type}</h2>
           <div className="grid grid-cols-2 gap-2">
             {BARCODE_FORMATS.map(({ value: v, label }) => (
               <button
@@ -126,23 +128,23 @@ export function BarcodeGenerator() {
         </div>
 
         <div className="card space-y-4">
-          <h2 className="font-bold text-white">قيمة الباركود</h2>
+          <h2 className="font-bold text-white">{t.barcode.value}</h2>
           <div>
             <input
               className={clsx("input", error && "border-red-500 focus:ring-red-500/50")}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="أدخل القيمة..."
+              placeholder={t.barcode.placeholder}
             />
             {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
           </div>
         </div>
 
         <div className="card space-y-5">
-          <h2 className="font-bold text-white">التخصيص</h2>
+          <h2 className="font-bold text-white">{t.barcode.customization}</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">لون الخطوط</label>
+              <label className="label">{t.barcode.line_color}</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={lineColor} onChange={(e) => setLineColor(e.target.value)}
                   className="w-10 h-10 rounded-lg cursor-pointer border border-gray-700 bg-transparent" />
@@ -150,7 +152,7 @@ export function BarcodeGenerator() {
               </div>
             </div>
             <div>
-              <label className="label">لون الخلفية</label>
+              <label className="label">{t.barcode.bg_color}</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)}
                   className="w-10 h-10 rounded-lg cursor-pointer border border-gray-700 bg-transparent" />
@@ -160,14 +162,14 @@ export function BarcodeGenerator() {
           </div>
 
           <div>
-            <label className="label">عرض الخط: {width}</label>
+            <label className="label">{t.barcode.line_width} {width}</label>
             <input type="range" min="1" max="5" step="0.5" value={width}
               onChange={(e) => setWidth(Number(e.target.value))}
               className="w-full accent-brand-500" />
           </div>
 
           <div>
-            <label className="label">الارتفاع: {height}px</label>
+            <label className="label">{t.barcode.height} {height}px</label>
             <input type="range" min="50" max="200" step="5" value={height}
               onChange={(e) => setHeight(Number(e.target.value))}
               className="w-full accent-brand-500" />
@@ -186,7 +188,7 @@ export function BarcodeGenerator() {
                 displayValue ? "right-1" : "left-1"
               )} />
             </button>
-            <label className="text-sm text-gray-300">إظهار القيمة النصية</label>
+            <label className="text-sm text-gray-300">{t.barcode.show_text}</label>
           </div>
         </div>
       </div>
@@ -194,7 +196,7 @@ export function BarcodeGenerator() {
       {/* Preview */}
       <div className="lg:sticky lg:top-24 space-y-6">
         <div className="card flex flex-col items-center">
-          <h2 className="font-bold text-white mb-6 self-start">معاينة الباركود</h2>
+          <h2 className="font-bold text-white mb-6 self-start">{t.barcode.preview}</h2>
           <div
             className="rounded-2xl overflow-hidden p-4 w-full flex items-center justify-center min-h-[160px]"
             style={{ backgroundColor: bgColor }}
@@ -205,11 +207,11 @@ export function BarcodeGenerator() {
           <div className="grid grid-cols-2 gap-3 mt-8 w-full">
             <button onClick={downloadSVG} className="btn-primary justify-center gap-2">
               <Download className="w-4 h-4" />
-              تنزيل SVG
+              {t.barcode.download_svg}
             </button>
             <button onClick={downloadPNG} className="btn-secondary justify-center gap-2">
               <Download className="w-4 h-4" />
-              تنزيل PNG
+              {t.barcode.download_png}
             </button>
           </div>
         </div>

@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import { QRScanner } from "@/components/qr/QRScanner";
+import { getDictionary } from "@/i18n/dictionaries";
 
-export const metadata: Metadata = {
-  title: "قارئ QR والباركود",
-  description: "امسح أي رمز QR أو باركود باستخدام الكاميرا أو رفع صورة",
-};
+export async function generateMetadata({ params: { lang } }: { params: { lang: string } }): Promise<Metadata> {
+  const t = await getDictionary(lang as any);
+  return {
+    title: t.scanner.title,
+    description: t.scanner.desc,
+  };
+}
 
-export default function ScannerPage() {
+export default async function ScannerPage({ params: { lang } }: { params: { lang: string } }) {
+  const t = await getDictionary(lang as any);
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black text-white mb-3">
-            قارئ <span className="gradient-text">QR والباركود</span>
+            {t.scanner.page_title} <span className="gradient-text">{t.scanner.gradient_title}</span>
           </h1>
-          <p className="text-gray-400 text-lg">امسح أي رمز باستخدام الكاميرا أو ارفع صورة</p>
+          <p className="text-gray-400 text-lg">{t.scanner.desc}</p>
         </div>
         <QRScanner />
       </div>
